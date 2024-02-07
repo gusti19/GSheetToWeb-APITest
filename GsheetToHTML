@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Presensi</title>
+</head>
+<body>
+
+<h1>Data Presensi</h1>
+
+<h2>Jumlah Presensi: <span id="jumlahPresensi"></span></h2>
+<h2>Jumlah Siswa: <span id="jumlahSiswa"></span></h2>
+
+<script>
+    // Fungsi untuk memanggil API dan memperbarui data di HTML
+    function fetchDataFromGoogleSheets() {
+        const spreadsheetId = 'd/XXX/edit';
+        const apiKey = 'API_KEY';
+        const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Number!B1:B2?key=${apiKey}`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const jumlahPresensi = data.values[0][0];
+                const jumlahSiswa    = data.values[1][0];
+
+                // Memperbarui nilai di HTML
+                document.getElementById('jumlahPresensi').textContent = jumlahPresensi;
+                document.getElementById('jumlahSiswa').textContent = jumlahSiswa;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Memanggil fungsi untuk pertama kali
+    fetchDataFromGoogleSheets();
+
+    // Menggunakan setInterval untuk memanggil fungsi secara berkala (contoh: setiap 5 detik)
+    setInterval(fetchDataFromGoogleSheets, 5000); // Ganti 5000 dengan interval yang Anda inginkan (dalam milidetik)
+</script>
+
+</body>
+</html>
