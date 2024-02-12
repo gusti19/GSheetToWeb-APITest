@@ -4,39 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Presensi</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        tr, td:nth-child(even) {
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        span {
+            font-size: 24px;
+        }
+        .container {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+        .code {
+            flex: 0 0 500px;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Data Presensi</h1>
+<div class="container">
+    <div class="code a">
+        <h1>Data Presensi</h1>
 
-<h2>Jumlah Presensi: <span id="jumlahPresensi"></span></h2>
-<h2>Jumlah Siswa: <span id="jumlahSiswa"></span></h2>
+        <h2>Jumlah Pendaftar AWS SB: <span id="jumlahPresensi"></span></h2>
+        <h2>Jumlah Siswa Hadir: <span id="jumlahSiswa"></span></h2>
+    </div>
+
+    <div class="code b">
+        <span>Data Pendaftar AWS Skill Builder</span> <br>
+        <span>Azid's Version</span>
+
+        <div class="table">
+            <table>
+                <tr>
+                    <th>Bulan</th>
+                    <th>Jumlah Pendaftar AWS SB</th>
+                </tr>
+                <tr>
+                    <td>Januari</td>
+                    <td id="jan"></td>
+                </tr>
+                <tr>
+                    <td>Februari</td>
+                    <td id="feb"></td>
+                </tr>
+                <tr>
+                    <td>Maret</td>
+                    <td id="mar"></td>
+                </tr>
+                <tr>
+                    <td>April</td>
+                    <td id="apr"></td>
+                </tr>
+                <tr>
+                    <td>Mei</td>
+                    <td id="mei"></td>
+                </tr>
+                <tr>
+                    <td>Juni</td>
+                    <td id="jun"></td>
+                </tr>
+                <tr>
+                    <td>Juli</td>
+                    <td id="jul"></td>
+                </tr>
+                <tr>
+                    <td>Agustus</td>
+                    <td id="ags"></td>
+                </tr>
+                <tr>
+                    <td>September</td>
+                    <td id="sep"></td>
+                </tr>
+                <tr>
+                    <td>Oktober</td>
+                    <td id="okt"></td>
+                </tr>
+                <tr>
+                    <td>November</td>
+                    <td id="nov"></td>
+                </tr>
+                <tr>
+                    <td>Desember</td>
+                    <td id="des"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
 
 <script>
-    // Fungsi untuk memanggil API dan memperbarui data di HTML
+    function fetchDataAndUpdate(url, elementId) {
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const value = data.values[0][0];
+                document.getElementById(elementId).textContent = value;
+            })
+            .catch(error => console.error(`Error fetching data for ${elementId}:`, error));
+    }
+
     function fetchDataFromGoogleSheets() {
-        const spreadsheetId = 'd/XXX/edit';
-        const apiKey = 'API_KEY';
+        const spreadsheetId = '1gZczJF1pBgCFCAoO-oCtq-aIhO7QUmhVnOvXEq3C-hA';
+        const apiKey = 'AIzaSyBe4Ux0K0qx0bCheg6gsi4KlZLSsp3HFJY';
+        const rangeMapping = {
+            'jan': 'C10',
+            'feb': 'F10',
+            'mar': 'I10',
+            'apr': 'L10',
+            'mei': 'O10',
+            'jun': 'R10',
+            'jul': 'C18',
+            'ags': 'F18',
+            'sep': 'I18',
+            'okt': 'L18',
+            'nov': 'O18',
+            'des': 'R18'
+        };
+
+        Object.keys(rangeMapping).forEach(elementId => {
+            const range = rangeMapping[elementId];
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/API!${range}?key=${apiKey}`;
+            fetchDataAndUpdate(url, elementId);
+        });
+    }
+
+    function fetchDataFromGoogleSheetsA() {
+        const spreadsheetId = '1IwJIkJa0GhTnK1DZJFc38vJxlqQNrMrZU3ipffMXCDg';
+        const apiKey = 'AIzaSyBe4Ux0K0qx0bCheg6gsi4KlZLSsp3HFJY';
         const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Number!B1:B2?key=${apiKey}`;
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                const jumlahPresensi = data.values[0][0];
-                const jumlahSiswa    = data.values[1][0];
+                const jumlahPresensi = data.values[0];
+                const jumlahSiswa    = data.values[1];
 
-                // Memperbarui nilai di HTML
                 document.getElementById('jumlahPresensi').textContent = jumlahPresensi;
                 document.getElementById('jumlahSiswa').textContent = jumlahSiswa;
             })
             .catch(error => console.error('Error fetching data:', error));
     }
 
-    // Memanggil fungsi untuk pertama kali
     fetchDataFromGoogleSheets();
-
-    // Menggunakan setInterval untuk memanggil fungsi secara berkala (contoh: setiap 5 detik)
-    setInterval(fetchDataFromGoogleSheets, 5000); // Ganti 5000 dengan interval yang Anda inginkan (dalam milidetik)
+    fetchDataFromGoogleSheetsA();
+    setInterval(fetchDataFromGoogleSheets, 5000);
+    setInterval(fetchDataFromGoogleSheetsA, 5000);
 </script>
 
 </body>
